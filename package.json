@@ -1,0 +1,78 @@
+{
+  "name": "redux-nc",
+  "version": "1.0.1",
+  "description": "",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rimraf lib umd",
+    "dev": "NODE_PATH=. NODE_ENV=development node .",
+    "build": "npm run build:lib && npm run build:umd && npm run build:umd:min",
+    "build:lib": "babel src --out-dir lib",
+    "build:umd": "cross-env NODE_ENV=development npm run webpack:umd",
+    "build:umd:min": "cross-env NODE_ENV=production npm run webpack:umd",
+    "webpack:umd": "webpack --config webpack.config.umd.babel.js",
+    "prepublish": "npm run clean && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/borm/redux-nc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/borm/redux-nc/issues"
+  },
+  "author": "borm",
+  "license": "ISC",
+  "keywords": [
+    "redux"
+  ],
+  "peerDependencies": {
+    "react": "^15.0.0-0 || ^16.0.0-0",
+    "react-dom": "^15.0.0-0 || ^16.0.0-0",
+    "prop-types": "^15.6.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.0.2",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-export-extensions": "^6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "cross-env": "^5.1.1",
+    "eslint": "^4.16.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.5.1",
+    "express": "^4.16.2",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "html-webpack-plugin": "^3.2.0",
+    "react-hot-loader": "^4.1.1",
+    "rimraf": "^2.6.2",
+    "sass-loader": "^7.0.1",
+    "webpack": "^3.8.1",
+    "webpack-dev-middleware": "^2.0.4",
+    "webpack-hot-middleware": "^2.21.0"
+  },
+  "dependencies": {
+    "lodash.map": "^4.6.0",
+    "lodash.mapvalues": "^4.6.0"
+  },
+  "files": [
+    "README.md",
+    "lib",
+    "umd",
+    "*.js"
+  ],
+  "npmName": "redux-nc",
+  "npmFileMap": [
+    {
+      "basePath": "/umd/",
+      "files": [
+        "*.js"
+      ]
+    }
+  ]
+}
