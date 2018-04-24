@@ -37,6 +37,7 @@ A small library for working with redux without constants
     
     const types = getActionIds(actions);
     export default createReducer({
+      // Define initial store
       test: false,
     }, {
       [types.test]: (state, action) => action.payload,
@@ -71,6 +72,7 @@ A small library for working with redux without constants
     
     const types = getActionIds(actions);
     export default createReducer({
+      // Define initial store
       test: false,
     }, {
       [types.test.begin]: (state, action) => action.payload,
