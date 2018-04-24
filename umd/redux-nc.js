@@ -7,7 +7,7 @@
 		exports["ReduxNC"] = factory();
 	else
 		root["ReduxNC"] = factory();
-})(typeof self !== 'undefined' ? self : this, function() {
+})(window, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -54,6 +54,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		}
 /******/ 	};
 /******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
 /******/ 	__webpack_require__.n = function(module) {
 /******/ 		var getter = module && module.__esModule ?
@@ -69,288 +74,18 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/
+/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = "./index.js");
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports) {
+/******/ ({
 
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports) {
-
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.createReducer = exports.getActionIds = exports.createActions = exports.promiseMiddleware = undefined;
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-exports.async = async;
-exports.complete = complete;
-exports.delay = delay;
-
-var _lodash = __webpack_require__(3);
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-var _lodash3 = __webpack_require__(4);
-
-var _lodash4 = _interopRequireDefault(_lodash3);
-
-var _promise = __webpack_require__(5);
-
-var _promise2 = _interopRequireDefault(_promise);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-exports.promiseMiddleware = _promise2.default;
-
-// Create actions that don't need constants :)
-
-var createActions = exports.createActions = function createActions(prefix, actions) {
-  var zipObject = {};
-
-  /**
-   * Pre filling zipObject for can using 'this' inside action
-   * see payload = createAction => this.apply
-   */
-  (0, _lodash2.default)(actions, function (property, key) {
-    var actionId = prefix.toUpperCase() + '__' + key.toUpperCase();
-
-    zipObject[key] = function () {
-      return {
-        type: actionId,
-        payload: null
-      };
-    };
-  });
-
-  /**
-   * Fill zipObject with real payloads
-   */
-  (0, _lodash2.default)(actions, function (action, key) {
-    var actionId = prefix.toUpperCase() + '__' + key.toUpperCase();
-
-    var asyncTypes = ['BEGIN', 'SUCCESS', 'FAILED', 'COMPLETE'].reduce(function (types, type) {
-      return _extends({}, types, _defineProperty({}, type.toLowerCase(), actionId + '_' + type));
-    }, {});
-
-    var callback = action.callback;
-
-
-    var callbackAction = function callbackAction() {
-      var _this = this;
-
-      var dispatch = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function (props) {
-        return props;
-      };
-
-      return function () {
-        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-
-        var payload = _this.apply(zipObject, args);
-
-        if (typeof payload === 'function') {
-          return function () {
-            for (var _len2 = arguments.length, asyncArgs = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-              asyncArgs[_key2] = arguments[_key2];
-            }
-
-            return callbackAction.call.apply(callbackAction, [payload].concat(asyncArgs)).apply(undefined, asyncArgs);
-          };
-        }
-        return dispatch({
-          type: asyncTypes.complete,
-          payload: payload
-        });
-      };
-    };
-
-    var createAction = function createAction() {
-      var _this2 = this;
-
-      var dispatch = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function (props) {
-        return props;
-      };
-
-      return function () {
-        for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-          args[_key3] = arguments[_key3];
-        }
-
-        var payload = _this2.apply.apply(_this2, [zipObject].concat(args));
-        if (payload instanceof Promise) {
-          /**
-           * Promise (async)
-           */
-          return dispatch({
-            args: Array.prototype.slice.call(args),
-            types: asyncTypes,
-            promise: payload,
-            callback: callback ? callbackAction.call(callback) : false
-          });
-        } else if (typeof payload === 'function') {
-          return function () {
-            for (var _len4 = arguments.length, asyncArgs = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-              asyncArgs[_key4] = arguments[_key4];
-            }
-
-            return createAction.call.apply(createAction, [payload].concat(asyncArgs))(asyncArgs);
-          };
-        }
-        /**
-         * Object (sync)
-         */
-        return dispatch({
-          args: Array.prototype.slice.call(args),
-          type: actionId,
-          payload: payload,
-          callback: callback ? callbackAction.call(callback) : false
-        });
-      };
-    };
-
-    var actionCreator = function actionCreator() {
-      for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
-        args[_key5] = arguments[_key5];
-      }
-
-      return createAction.call(action)(args);
-    };
-
-    /**
-     * used async?
-     */
-    if (action.async === true) {
-      actionCreator.id = asyncTypes;
-    } else {
-      var prototype = actionId.constructor.prototype;
-
-      if (!Object.prototype.hasOwnProperty.call(prototype, 'complete')) {
-        Object.defineProperty(prototype, 'complete', {
-          get: function get() {
-            return asyncTypes.complete;
-          }
-        });
-      }
-      actionCreator.id = actionId;
-    }
-
-    zipObject[key] = actionCreator;
-  });
-
-  return zipObject;
-};
-
-function async() {
-  return function (target, name, descriptor) {
-    // eslint-disable-next-line no-param-reassign
-    descriptor.value.async = true;
-    return descriptor;
-  };
-}
-
-function complete(callback) {
-  return function (target, name, descriptor) {
-    // eslint-disable-next-line no-param-reassign
-    descriptor.value.callback = callback;
-    return descriptor;
-  };
-}
-
-// Get action ids from actions created with `createActions`
-var getActionIds = exports.getActionIds = function getActionIds(actionCreators) {
-  return (0, _lodash4.default)(actionCreators, function (value) {
-    return value.id;
-  });
-};
-
-// Replace switch statements in stores (taken from the Redux README)
-var createReducer = exports.createReducer = function createReducer(initialState, handlers) {
-  return function () {
-    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-    var action = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-    if (Object.prototype.hasOwnProperty.call(handlers, action.type)) {
-      return handlers[action.type](state, action);
-    }
-    return state;
-  };
-};
-
-function delay(ms) {
-  var timeout = void 0;
-  return new Promise(function (resolve) {
-    return setTimeout(function () {
-      resolve();
-      clearTimeout(timeout);
-    }, ms);
-  });
-}
-
-/***/ }),
-/* 3 */
+/***/ "../node_modules/lodash.map/index.js":
+/*!*******************************************!*\
+  !*** ../node_modules/lodash.map/index.js ***!
+  \*******************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {/**
@@ -2720,10 +2455,15 @@ function property(path) {
 
 module.exports = map;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(1)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/global.js */ "../node_modules/webpack/buildin/global.js"), __webpack_require__(/*! ./../webpack/buildin/module.js */ "../node_modules/webpack/buildin/module.js")(module)))
 
 /***/ }),
-/* 4 */
+
+/***/ "../node_modules/lodash.mapvalues/index.js":
+/*!*************************************************!*\
+  !*** ../node_modules/lodash.mapvalues/index.js ***!
+  \*************************************************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {/**
@@ -5007,10 +4747,305 @@ function property(path) {
 
 module.exports = mapValues;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(1)(module)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/global.js */ "../node_modules/webpack/buildin/global.js"), __webpack_require__(/*! ./../webpack/buildin/module.js */ "../node_modules/webpack/buildin/module.js")(module)))
 
 /***/ }),
-/* 5 */
+
+/***/ "../node_modules/webpack/buildin/global.js":
+/*!*************************************************!*\
+  !*** ../node_modules/webpack/buildin/global.js ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1, eval)("this");
+} catch (e) {
+	// This works if the window reference is available
+	if (typeof window === "object") g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+
+/***/ "../node_modules/webpack/buildin/module.js":
+/*!*************************************************!*\
+  !*** ../node_modules/webpack/buildin/module.js ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if (!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if (!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+
+/***/ "./index.js":
+/*!******************!*\
+  !*** ./index.js ***!
+  \******************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createReducer = exports.getActionIds = exports.createActions = exports.promiseMiddleware = undefined;
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+exports.async = async;
+exports.complete = complete;
+exports.delay = delay;
+
+var _lodash = __webpack_require__(/*! lodash.map */ "../node_modules/lodash.map/index.js");
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _lodash3 = __webpack_require__(/*! lodash.mapvalues */ "../node_modules/lodash.mapvalues/index.js");
+
+var _lodash4 = _interopRequireDefault(_lodash3);
+
+var _promise = __webpack_require__(/*! ./promise */ "./promise.js");
+
+var _promise2 = _interopRequireDefault(_promise);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+exports.promiseMiddleware = _promise2.default;
+
+// Create actions that don't need constants :)
+
+var createActions = exports.createActions = function createActions(prefix, actions) {
+  var zipObject = {};
+
+  /**
+   * Pre filling zipObject for can using 'this' inside action
+   * see payload = createAction => this.apply
+   */
+  (0, _lodash2.default)(actions, function (property, key) {
+    var actionId = prefix.toUpperCase() + '__' + key.toUpperCase();
+
+    zipObject[key] = function () {
+      return {
+        type: actionId,
+        payload: null
+      };
+    };
+  });
+
+  /**
+   * Fill zipObject with real payloads
+   */
+  (0, _lodash2.default)(actions, function (action, key) {
+    var actionId = prefix.toUpperCase() + '__' + key.toUpperCase();
+
+    var asyncTypes = ['BEGIN', 'SUCCESS', 'FAILED', 'COMPLETE'].reduce(function (types, type) {
+      return _extends({}, types, _defineProperty({}, type.toLowerCase(), actionId + '_' + type));
+    }, {});
+
+    var callback = action.callback;
+
+
+    var callbackAction = function callbackAction() {
+      var _this = this;
+
+      var dispatch = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function (props) {
+        return props;
+      };
+
+      return function () {
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+
+        var payload = _this.apply(zipObject, args);
+
+        if (typeof payload === 'function') {
+          return function () {
+            for (var _len2 = arguments.length, asyncArgs = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+              asyncArgs[_key2] = arguments[_key2];
+            }
+
+            return callbackAction.call.apply(callbackAction, [payload].concat(asyncArgs)).apply(undefined, asyncArgs);
+          };
+        }
+        return dispatch({
+          type: asyncTypes.complete,
+          payload: payload
+        });
+      };
+    };
+
+    var createAction = function createAction() {
+      var _this2 = this;
+
+      var dispatch = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function (props) {
+        return props;
+      };
+
+      return function () {
+        for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+          args[_key3] = arguments[_key3];
+        }
+
+        var payload = _this2.apply.apply(_this2, [zipObject].concat(args));
+        if (payload instanceof Promise) {
+          /**
+           * Promise (async)
+           */
+          return dispatch({
+            args: Array.prototype.slice.call(args),
+            types: asyncTypes,
+            promise: payload,
+            callback: callback ? callbackAction.call(callback) : false
+          });
+        } else if (typeof payload === 'function') {
+          return function () {
+            for (var _len4 = arguments.length, asyncArgs = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+              asyncArgs[_key4] = arguments[_key4];
+            }
+
+            return createAction.call.apply(createAction, [payload].concat(asyncArgs))(asyncArgs);
+          };
+        }
+        /**
+         * Object (sync)
+         */
+        return dispatch({
+          args: Array.prototype.slice.call(args),
+          type: actionId,
+          payload: payload,
+          callback: callback ? callbackAction.call(callback) : false
+        });
+      };
+    };
+
+    var actionCreator = function actionCreator() {
+      for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+        args[_key5] = arguments[_key5];
+      }
+
+      return createAction.call(action)(args);
+    };
+
+    /**
+     * used async?
+     */
+    if (action.async === true) {
+      actionCreator.id = asyncTypes;
+    } else {
+      var prototype = actionId.constructor.prototype;
+
+      if (!Object.prototype.hasOwnProperty.call(prototype, 'complete')) {
+        Object.defineProperty(prototype, 'complete', {
+          get: function get() {
+            return asyncTypes.complete;
+          }
+        });
+      }
+      actionCreator.id = actionId;
+    }
+
+    zipObject[key] = actionCreator;
+  });
+
+  return zipObject;
+};
+
+function async() {
+  return function (target, name, descriptor) {
+    // eslint-disable-next-line no-param-reassign
+    descriptor.value.async = true;
+    return descriptor;
+  };
+}
+
+function complete(callback) {
+  return function (target, name, descriptor) {
+    // eslint-disable-next-line no-param-reassign
+    descriptor.value.callback = callback;
+    return descriptor;
+  };
+}
+
+// Get action ids from actions created with `createActions`
+var getActionIds = exports.getActionIds = function getActionIds(actionCreators) {
+  return (0, _lodash4.default)(actionCreators, function (value) {
+    return value.id;
+  });
+};
+
+// Replace switch statements in stores (taken from the Redux README)
+var createReducer = exports.createReducer = function createReducer(initialState, handlers) {
+  return function () {
+    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+    var action = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    if (Object.prototype.hasOwnProperty.call(handlers, action.type)) {
+      return handlers[action.type](state, action);
+    }
+    return state;
+  };
+};
+
+function delay(ms) {
+  var timeout = void 0;
+  return new Promise(function (resolve) {
+    return setTimeout(function () {
+      resolve();
+      clearTimeout(timeout);
+    }, ms);
+  });
+}
+
+/***/ }),
+
+/***/ "./promise.js":
+/*!********************!*\
+  !*** ./promise.js ***!
+  \********************/
+/*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5072,6 +5107,7 @@ var promiseMiddleware = function promiseMiddleware() {
 exports.default = promiseMiddleware;
 
 /***/ })
-/******/ ]);
+
+/******/ });
 });
 //# sourceMappingURL=redux-nc.js.map

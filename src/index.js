@@ -1,6 +1,6 @@
 import map from 'lodash.map';
 import mapValues from 'lodash.mapvalues';
-import promiseMiddleware from 'promise';
+import promiseMiddleware from './promise';
 
 export { promiseMiddleware };
 
