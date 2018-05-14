@@ -41,7 +41,7 @@ export const createActions = (prefix, actions) => {
 
         if (typeof payload === 'function') {
           return (...asyncArgs) => callbackAction
-            .call(payload, ...asyncArgs)(...asyncArgs);
+            .apply(payload, asyncArgs)(...asyncArgs);
         }
         return dispatch({
           type: asyncTypes.complete,
@@ -51,8 +51,8 @@ export const createActions = (prefix, actions) => {
     };
 
     const createAction = function createAction(dispatch = props => props) {
-      return (...args) => {
-        const payload = this.apply(zipObject, ...args);
+      return (args) => {
+        const payload = this.apply(zipObject, args);
         if (payload instanceof Promise) {
           /**
            * Promise (async)
@@ -64,7 +64,7 @@ export const createActions = (prefix, actions) => {
             callback: callback ? callbackAction.call(callback) : false,
           });
         } else if (typeof payload === 'function') {
-          return (...asyncArgs) => createAction.call(payload, ...asyncArgs)(asyncArgs);
+          return (...asyncArgs) => createAction.apply(payload, asyncArgs)(asyncArgs);
         }
         /**
          * Object (sync)

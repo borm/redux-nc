@@ -4884,8 +4884,10 @@ var createActions = exports.createActions = function createActions(prefix, actio
       return _extends({}, types, _defineProperty({}, type.toLowerCase(), actionId + '_' + type));
     }, {});
 
-    var callback = action.callback;
-
+    var callback = void 0;
+    if (action.callback) {
+      callback = action.callback.bind(zipObject);
+    }
 
     var callbackAction = function callbackAction() {
       var _this = this;
@@ -4907,7 +4909,7 @@ var createActions = exports.createActions = function createActions(prefix, actio
               asyncArgs[_key2] = arguments[_key2];
             }
 
-            return callbackAction.call.apply(callbackAction, [payload].concat(asyncArgs)).apply(undefined, asyncArgs);
+            return callbackAction.apply(payload, asyncArgs).apply(undefined, asyncArgs);
           };
         }
         return dispatch({
@@ -4924,12 +4926,8 @@ var createActions = exports.createActions = function createActions(prefix, actio
         return props;
       };
 
-      return function () {
-        for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-          args[_key3] = arguments[_key3];
-        }
-
-        var payload = _this2.apply.apply(_this2, [zipObject].concat(args));
+      return function (args) {
+        var payload = _this2.apply(zipObject, args);
         if (payload instanceof Promise) {
           /**
            * Promise (async)
@@ -4942,11 +4940,11 @@ var createActions = exports.createActions = function createActions(prefix, actio
           });
         } else if (typeof payload === 'function') {
           return function () {
-            for (var _len4 = arguments.length, asyncArgs = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-              asyncArgs[_key4] = arguments[_key4];
+            for (var _len3 = arguments.length, asyncArgs = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+              asyncArgs[_key3] = arguments[_key3];
             }
 
-            return createAction.call.apply(createAction, [payload].concat(asyncArgs))(asyncArgs);
+            return createAction.apply(payload, asyncArgs)(asyncArgs);
           };
         }
         /**
@@ -4962,8 +4960,8 @@ var createActions = exports.createActions = function createActions(prefix, actio
     };
 
     var actionCreator = function actionCreator() {
-      for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
-        args[_key5] = arguments[_key5];
+      for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+        args[_key4] = arguments[_key4];
       }
 
       return createAction.call(action)(args);

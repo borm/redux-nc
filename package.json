@@ -1,6 +1,6 @@
 {
   "name": "redux-nc",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
@@ -11,7 +11,8 @@
     "build:lib": "babel src --out-dir lib",
     "build:umd": "cross-env NODE_ENV=development npm run webpack:umd",
     "build:umd:min": "cross-env NODE_ENV=production npm run webpack:umd",
-    "webpack:umd": "webpack --config webpack.config.umd.babel.js"
+    "webpack:umd": "webpack --config webpack.config.umd.babel.js",
+    "prepublish": "npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
